@@ -1,4 +1,59 @@
+from src.common_functions import *
+from src.constants.initial_values import InitialHashValuesSHA256
+from src.constants.constant_list import SHA256Constants
+from src.binary_string import BinaryString
 
 
-def _sha256_padding(message: bytes) -> bytes:
-    ...
+def calculate_sha256(message: bytes) -> bytes:
+    schedule_word_list = []
+    binary_string = BinaryString(string=message)
+    binary_string.pad512()
+
+    h0 = InitialHashValuesSHA256.hash_0
+    h1 = InitialHashValuesSHA256.hash_1
+    h2 = InitialHashValuesSHA256.hash_2
+    h3 = InitialHashValuesSHA256.hash_3
+    h4 = InitialHashValuesSHA256.hash_4
+    h5 = InitialHashValuesSHA256.hash_5
+    h6 = InitialHashValuesSHA256.hash_6
+    h7 = InitialHashValuesSHA256.hash_7
+
+    hash_word_list = [h0, h1, h2, h3, h4, h5, h6, h7]
+
+
+    for chunck in binary_string.get_512_bits_chunks():
+        schedule_word_list[0:16] = chunck[0:16]
+
+        for t in range(16, 63):
+            word = SSIG1(schedule_word_list[t-2]) + schedule_word_list[t-7] + SSIG0(schedule_word_list[t-15]) + schedule_word_list[t-16]
+            schedule_word_list.append(word)
+        
+
+        for t in range(0, 63):
+            T1 = h7 + BSIG1(h4) + CH(h4, h5, h6) + SHA256Constants[t] + schedule_word_list[t]
+            T2 = BSIG0(h0) + MAJ(h0, h1, h2)
+            h7 = h6
+            h6 = h5
+            h5 = h4
+            h4 = h3 + T1
+            h3 = h2
+            h2 = h1
+            h1 = h0
+            h0 = T1 + T2
+
+        hash_word_list[0] = h0 + hash_word_list[0]
+        hash_word_list[1] = h1 + hash_word_list[1]
+        hash_word_list[2] = h2 + hash_word_list[2]
+        hash_word_list[3] = h3 + hash_word_list[3]
+        hash_word_list[4] = h4 + hash_word_list[4]
+        hash_word_list[5] = h5 + hash_word_list[5]
+        hash_word_list[6] = h6 + hash_word_list[6]
+        hash_word_list[7] = h7 + hash_word_list[7]
+
+    return hash_word_list
+
+
+if __name__ == '__main__':
+    
+    message = 'Fuck this fucking world!'
+    calculate_sha256(message=message)
