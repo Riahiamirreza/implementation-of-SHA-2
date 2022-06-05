@@ -65,14 +65,15 @@ class BinaryString:
     def __radd__(self, other):
         self.__add__(other)
 
-    def to_hex_(self):
+    def to_hex(self):
         return hex(int(''.join(str(bit) for bit in self.binary_string), 2))[2:]
 
     def pad512(self):
-        self.binary_string += array('b', [1])
         length = len(self.binary_string)
+        self.binary_string += array('b', [1])
         zeros = (448 - (length % 448)) * [0]
         self.binary_string += array('b', zeros)
+        self.binary_string += BinaryString(integer_value=length, size=64).binary_string
 
     def __len__(self):
         return len(self.binary_string)
