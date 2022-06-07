@@ -4,7 +4,7 @@ __all__ = [
 
 SHR = lambda x, n: x >> n
 
-ROTR = lambda x, n: (x >> n) | (x << (32-n))
+ROTR = lambda x, n: ((x >> n) | (x << (32-n))) & (2**32 - 1)
 
 ROTL = lambda x, n: (x << n) | (x >> (32-n))
 
