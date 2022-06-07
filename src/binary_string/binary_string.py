@@ -8,9 +8,9 @@ class BinaryString:
         self.size = size
 
         if isinstance(string, str):
-            self.binary_string: array = self._make_array_from_binary_string_(string)
+            self.integer_value = int.from_bytes(string.encode(), 'big')
         elif isinstance(string, bytes):
-            self.binary_string: array = self._make_array_from_binary_bytes_(string)
+            self.integer_value = int.from_bytes(string, 'big')
         elif isinstance(integer_value , int):
             string = bin(integer_value)[2:]
             self.binary_string: array = self._make_array_from_binary_string_(string)
@@ -80,7 +80,7 @@ class BinaryString:
     def pad512(self):
         length = len(self.binary_string)
         self.binary_string += array('b', [1])
-        zeros = (448 - (length % 448)) * [0]
+        zeros = (448 - ((length+1) % 448)) * [0]
         self.binary_string += array('b', zeros)
         self.binary_string += BinaryString(integer_value=length, size=64).binary_string
 
